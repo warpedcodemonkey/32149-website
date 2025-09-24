@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery - Robo Runnerz FTC Team #32149</title>
+    <meta name="description" content="Photo gallery showcasing Robo Runnerz FTC Team #32149 journey through competitions, builds, and team activities">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #1a1a1a;
+            --primary-green: #355E3B;
+            --accent-orange: #D2B48C;
+            --text-light: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 2px solid var(--primary-green);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-green);
+            transition: width 0.3s;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a:hover {
+            color: var(--primary-green);
+        }
+
+        /* Header Section */
+        .header {
+            margin-top: 80px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-green), #2d4f33);
+        }
+
+        .header h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(53, 94, 59, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Gallery Groups */
+        .gallery-container {
+            padding: 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .gallery-group {
+            margin-bottom: 4rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-group:hover {
+            transform: translateY(-5px);
+        }
+
+        .group-header {
+            background: linear-gradient(135deg, var(--accent-orange), #C4A572);
+            padding: 2rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        .group-header:hover {
+            background: linear-gradient(135deg, #C4A572, var(--accent-orange));
+        }
+
+        .group-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .group-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .expand-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-group.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .photo-count {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        /* Photo Grid */
+        .photo-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-group.expanded .photo-grid {
+            display: grid;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 1000px;
+            }
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 4/3;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: var(--primary-green);
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(53, 94, 59, 0.4);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover .photo-overlay {
+            transform: translateY(0);
+        }
+
+        .photo-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .photo-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Placeholder for photos not yet uploaded */
+        .photo-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-green), #2d4f33);
+            color: white;
+            font-size: 3rem;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .placeholder-text {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        /* Modal for full-size viewing */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .modal-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 3rem;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        .close:hover {
+            color: var(--accent-orange);
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .modal-nav:hover {
+            background: var(--primary-green);
+        }
+
+        .prev {
+            left: 20px;
+        }
+
+        .next {
+            right: 20px;
+        }
+
+        /* Back to main site button */
+        .back-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--primary-green), #2d4f33);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(53, 94, 59, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 100;
+        }
+
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(53, 94, 59, 0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .gallery-container {
+                padding: 2rem 1rem;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+
+            .group-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .modal-nav {
+                padding: 0.5rem;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#about">About</a></li>
+            <li><a href="/gallery.html">Gallery</a></li>
+            <li><a href="/#donate">Support Us</a></li>
+            <li><a href="/#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="header">
+        <h1>📸 Team Gallery</h1>
+        <p>Documenting our journey through competitions, builds, and team activities</p>
+    </div>
+
+    <div class="gallery-container">
+        <!-- Competition Photos Group -->
+        <div class="gallery-group" data-group="competitions">
+            <div class="group-header" onclick="toggleGroup('competitions')">
+                <div class="group-title">
+                    🏆 Competition Highlights
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="group-description">
+                    Our team in action during FTC competitions, showcasing our robot performance and team spirit.
+                    <span class="photo-count">8 photos</span>
+                </div>
+            </div>
+            <div class="photo-grid" id="competitions-grid">
+                <!-- Competition photos will be populated here -->
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 0)">
+                    <div style="text-align: center;">
+                        🏆
+                        <div class="placeholder-text">Competition Photo 1</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 1)">
+                    <div style="text-align: center;">
+                        🤖
+                        <div class="placeholder-text">Robot in Action</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 2)">
+                    <div style="text-align: center;">
+                        🎯
+                        <div class="placeholder-text">Match Strategy</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 3)">
+                    <div style="text-align: center;">
+                        👥
+                        <div class="placeholder-text">Team Huddle</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 4)">
+                    <div style="text-align: center;">
+                        🏅
+                        <div class="placeholder-text">Awards Ceremony</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 5)">
+                    <div style="text-align: center;">
+                        🤝
+                        <div class="placeholder-text">Alliance Partners</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 6)">
+                    <div style="text-align: center;">
+                        📊
+                        <div class="placeholder-text">Pit Display</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('competitions', 7)">
+                    <div style="text-align: center;">
+                        🎉
+                        <div class="placeholder-text">Victory Celebration</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Robot Build Photos Group -->
+        <div class="gallery-group" data-group="robot-build">
+            <div class="group-header" onclick="toggleGroup('robot-build')">
+                <div class="group-title">
+                    🔧 Robot Build Process
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="group-description">
+                    Behind-the-scenes look at our robot construction, from initial design to final assembly.
+                    <span class="photo-count">10 photos</span>
+                </div>
+            </div>
+            <div class="photo-grid" id="robot-build-grid">
+                <!-- Build process photos will be populated here -->
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 0)">
+                    <div style="text-align: center;">
+                        📐
+                        <div class="placeholder-text">Design Phase</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 1)">
+                    <div style="text-align: center;">
+                        🔩
+                        <div class="placeholder-text">Assembly Process</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 2)">
+                    <div style="text-align: center;">
+                        💻
+                        <div class="placeholder-text">Programming</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 3)">
+                    <div style="text-align: center;">
+                        🧪
+                        <div class="placeholder-text">Testing Phase</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 4)">
+                    <div style="text-align: center;">
+                        ⚙️
+                        <div class="placeholder-text">Mechanism Detail</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 5)">
+                    <div style="text-align: center;">
+                        🎨
+                        <div class="placeholder-text">Final Touches</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 6)">
+                    <div style="text-align: center;">
+                        📏
+                        <div class="placeholder-text">Measurements</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 7)">
+                    <div style="text-align: center;">
+                        🔧
+                        <div class="placeholder-text">Tool Work</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 8)">
+                    <div style="text-align: center;">
+                        ✅
+                        <div class="placeholder-text">Quality Check</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('robot-build', 9)">
+                    <div style="text-align: center;">
+                        🚀
+                        <div class="placeholder-text">Ready to Go!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Activities Group -->
+        <div class="gallery-group" data-group="team-activities">
+            <div class="group-header" onclick="toggleGroup('team-activities')">
+                <div class="group-title">
+                    👨‍👩‍👧‍👦 Team Activities
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="group-description">
+                    Team building activities, meetings, and fun moments that make us the Robo Runnerz family.
+                    <span class="photo-count">6 photos</span>
+                </div>
+            </div>
+            <div class="photo-grid" id="team-activities-grid">
+                <!-- Team activity photos will be populated here -->
+                <div class="photo-item photo-placeholder" onclick="openModal('team-activities', 0)">
+                    <div style="text-align: center;">
+                        🍕
+                        <div class="placeholder-text">Team Dinner</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('team-activities', 1)">
+                    <div style="text-align: center;">
+                        📚
+                        <div class="placeholder-text">Study Session</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('team-activities', 2)">
+                    <div style="text-align: center;">
+                        🎮
+                        <div class="placeholder-text">Game Day</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('team-activities', 3)">
+                    <div style="text-align: center;">
+                        🏕️
+                        <div class="placeholder-text">Team Retreat</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('team-activities', 4)">
+                    <div style="text-align: center;">
+                        🎂
+                        <div class="placeholder-text">Birthday Celebration</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('team-activities', 5)">
+                    <div style="text-align: center;">
+                        📸
+                        <div class="placeholder-text">Group Photo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Outreach Group -->
+        <div class="gallery-group" data-group="outreach">
+            <div class="group-header" onclick="toggleGroup('outreach')">
+                <div class="group-title">
+                    🌟 Community Outreach
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="group-description">
+                    Our team giving back to the community and inspiring the next generation of STEM leaders.
+                    <span class="photo-count">5 photos</span>
+                </div>
+            </div>
+            <div class="photo-grid" id="outreach-grid">
+                <!-- Outreach photos will be populated here -->
+                <div class="photo-item photo-placeholder" onclick="openModal('outreach', 0)">
+                    <div style="text-align: center;">
+                        🏫
+                        <div class="placeholder-text">School Visit</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('outreach', 1)">
+                    <div style="text-align: center;">
+                        👨‍🏫
+                        <div class="placeholder-text">Teaching Kids</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('outreach', 2)">
+                    <div style="text-align: center;">
+                        🎪
+                        <div class="placeholder-text">Community Event</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('outreach', 3)">
+                    <div style="text-align: center;">
+                        🤝
+                        <div class="placeholder-text">Volunteer Work</div>
+                    </div>
+                </div>
+                <div class="photo-item photo-placeholder" onclick="openModal('outreach', 4)">
+                    <div style="text-align: center;">
+                        🌱
+                        <div class="placeholder-text">STEM Mentorship</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for full-size image viewing -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <button class="modal-nav prev" onclick="changeImage(-1)">❮</button>
+        <button class="modal-nav next" onclick="changeImage(1)">❯</button>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="">
+            <div class="modal-info">
+                <div class="photo-title" id="modalTitle"></div>
+                <div class="photo-description" id="modalDescription"></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/" class="back-button">← Back to Main Site</a>
+
+    <script>
+        let currentGroup = '';
+        let currentImageIndex = 0;
+        
+        // Photo data structure - easily replaceable with actual photo information
+        const photoData = {
+            'competitions': [
+                { title: 'Competition Photo 1', description: 'Team preparing for match', src: 'photos/competitions/comp1.jpg' },
+                { title: 'Robot in Action', description: 'Our robot scoring points', src: 'photos/competitions/comp2.jpg' },
+                { title: 'Match Strategy', description: 'Planning our approach', src: 'photos/competitions/comp3.jpg' },
+                { title: 'Team Huddle', description: 'Pre-match team meeting', src: 'photos/competitions/comp4.jpg' },
+                { title: 'Awards Ceremony', description: 'Recognition for our hard work', src: 'photos/competitions/comp5.jpg' },
+                { title: 'Alliance Partners', description: 'Working with other teams', src: 'photos/competitions/comp6.jpg' },
+                { title: 'Pit Display', description: 'Our team pit setup', src: 'photos/competitions/comp7.jpg' },
+                { title: 'Victory Celebration', description: 'Celebrating a successful match', src: 'photos/competitions/comp8.jpg' }
+            ],
+            'robot-build': [
+                { title: 'Design Phase', description: 'Initial robot sketches and planning', src: 'photos/build/build1.jpg' },
+                { title: 'Assembly Process', description: 'Building the chassis', src: 'photos/build/build2.jpg' },
+                { title: 'Programming', description: 'Coding our autonomous routines', src: 'photos/build/build3.jpg' },
+                { title: 'Testing Phase', description: 'Testing robot mechanisms', src: 'photos/build/build4.jpg' },
+                { title: 'Mechanism Detail', description: 'Close-up of intake system', src: 'photos/build/build5.jpg' },
+                { title: 'Final Touches', description: 'Adding team branding', src: 'photos/build/build6.jpg' },
+                { title: 'Measurements', description: 'Ensuring regulation compliance', src: 'photos/build/build7.jpg' },
+                { title: 'Tool Work', description: 'Precision assembly work', src: 'photos/build/build8.jpg' },
+                { title: 'Quality Check', description: 'Final inspection before competition', src: 'photos/build/build9.jpg' },
+                { title: 'Ready to Go!', description: 'Completed robot ready for action', src: 'photos/build/build10.jpg' }
+            ],
+            'team-activities': [
+                { title: 'Team Dinner', description: 'Celebrating after a successful build day', src: 'photos/activities/activity1.jpg' },
+                { title: 'Study Session', description: 'Learning about FTC rules and strategies', src: 'photos/activities/activity2.jpg' },
+                { title: 'Game Day', description: 'Team bonding through games', src: 'photos/activities/activity3.jpg' },
+                { title: 'Team Retreat', description: 'Planning session for the season', src: 'photos/activities/activity4.jpg' },
+                { title: 'Birthday Celebration', description: 'Celebrating team member birthdays', src: 'photos/activities/activity5.jpg' },
+                { title: 'Group Photo', description: 'Official team photo for the season', src: 'photos/activities/activity6.jpg' }
+            ],
+            'outreach': [
+                { title: 'School Visit', description: 'Demonstrating our robot to elementary students', src: 'photos/outreach/outreach1.jpg' },
+                { title: 'Teaching Kids', description: 'Teaching basic robotics concepts', src: 'photos/outreach/outreach2.jpg' },
+                { title: 'Community Event', description: 'Participating in local STEM fair', src: 'photos/outreach/outreach3.jpg' },
+                { title: 'Volunteer Work', description: 'Helping at community robotics event', src: 'photos/outreach/outreach4.jpg' },
+                { title: 'STEM Mentorship', description: 'Mentoring younger students', src: 'photos/outreach/outreach5.jpg' }
+            ]
+        };
+
+        function toggleGroup(groupName) {
+            const group = document.querySelector(`[data-group="${groupName}"]`);
+            const isExpanded = group.classList.contains('expanded');
+            
+            // Close all groups first
+            document.querySelectorAll('.gallery-group').forEach(g => {
+                g.classList.remove('expanded');
+            });
+            
+            // Toggle the clicked group
+            if (!isExpanded) {
+                group.classList.add('expanded');
+            }
+        }
+
+        function openModal(groupName, imageIndex) {
+            currentGroup = groupName;
+            currentImageIndex = imageIndex;
+            
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            
+            const photoInfo = photoData[groupName][imageIndex];
+            
+            // For now, show placeholder. Replace with actual image src when photos are uploaded
+            modalImage.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23355E3B"/><text x="400" y="300" text-anchor="middle" fill="white" font-size="48">📷</text><text x="400" y="350" text-anchor="middle" fill="white" font-size="24">' + photoInfo.title + '</text></svg>';
+            modalTitle.textContent = photoInfo.title;
+            modalDescription.textContent = photoInfo.description;
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function changeImage(direction) {
+            const groupPhotos = photoData[currentGroup];
+            currentImageIndex += direction;
+            
+            if (currentImageIndex >= groupPhotos.length) {
+                currentImageIndex = 0;
+            } else if (currentImageIndex < 0) {
+                currentImageIndex = groupPhotos.length - 1;
+            }
+            
+            openModal(currentGroup, currentImageIndex);
+        }
+
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            const modal = document.getElementById('imageModal');
+            if (modal.style.display === 'block') {
+                switch(event.key) {
+                    case 'Escape':
+                        closeModal();
+                        break;
+                    case 'ArrowLeft':
+                        changeImage(-1);
+                        break;
+                    case 'ArrowRight':
+                        changeImage(1);
+                        break;
+                }
+            }
+        });
+
+        // Smooth scrolling for navigation
+        document.quer
